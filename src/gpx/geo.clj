@@ -1,6 +1,6 @@
 (ns gpx.geo
   (:require
-    [clojure.math.numeric-tower :as math]))
+    [clojure.algo.generic.math-functions :refer [sin cos atan2 pow sqrt]]))
 
 ; Thanks to http://www.movable-type.co.uk/scripts/latlong.html
 
@@ -30,14 +30,14 @@
         Δφ (- φ₂ φ₁)
         Δλ (- λ₂ λ₁)
 
-        a (+ (math/expt (Math/sin (/ Δφ 2)) 2)
+        a (+ (pow (sin (/ Δφ 2)) 2)
              (*
-               (Math/cos φ₁)
-               (Math/cos φ₂)
-               (math/expt (Math/sin (/ Δλ 2)) 2)))
+               (cos φ₁)
+               (cos φ₂)
+               (pow (sin (/ Δλ 2)) 2)))
 
-        c (* 2 (Math/atan2 (math/sqrt a)
-                           (math/sqrt (- 1 a)))) ]
+        c (* 2 (atan2 (sqrt a)
+                      (sqrt (- 1 a)))) ]
 
         (* earth-radius c))
 )
