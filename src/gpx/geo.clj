@@ -23,18 +23,18 @@
   "
   [point1 point2]
 
-  (let [lat1 (-> point1 :lat deg-rad)
-        lon1 (-> point1 :lon deg-rad)
-        lat2 (-> point2 :lat deg-rad)
-        lon2 (-> point2 :lon deg-rad)
-        d_lat (- lat2 lat1)
-        d_lon (- lon2 lon1)
+  (let [φ1 (-> point1 :lat deg-rad)
+        λ1 (-> point1 :lon deg-rad)
+        φ2 (-> point2 :lat deg-rad)
+        λ2 (-> point2 :lon deg-rad)
+        Δφ (- φ2 φ1)
+        Δλ (- λ2 λ1)
 
-        a (+ (math/expt (Math/sin (/ d_lat 2)) 2)
+        a (+ (math/expt (Math/sin (/ Δφ 2)) 2)
              (*
-               (Math/cos lat1)
-               (Math/cos lat2)
-               (math/expt (Math/sin (/ d_lon 2)) 2)))
+               (Math/cos φ1)
+               (Math/cos φ2)
+               (math/expt (Math/sin (/ Δλ 2)) 2)))
 
         c (* 2 (Math/atan2 (math/sqrt a)
                            (math/sqrt (- 1 a)))) ]
