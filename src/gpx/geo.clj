@@ -13,7 +13,7 @@
   "Uses the haversine formula to calculate the distance between two points
 
   Haversine formula:
-    a = sin²(Δφ/2) + cos φ1 * cos φ2 * sin²(Δλ/2)
+    a = sin²(Δφ/2) + cos φ₁ * cos φ₂ * sin²(Δλ/2)
     c = 2 * atan2( √a, √(1−a) )
     d = R * c
 
@@ -23,17 +23,17 @@
   "
   [point1 point2]
 
-  (let [φ1 (-> point1 :lat deg-rad)
-        λ1 (-> point1 :lon deg-rad)
-        φ2 (-> point2 :lat deg-rad)
-        λ2 (-> point2 :lon deg-rad)
-        Δφ (- φ2 φ1)
-        Δλ (- λ2 λ1)
+  (let [φ₁ (-> point1 :lat deg-rad)
+        λ₁ (-> point1 :lon deg-rad)
+        φ₂ (-> point2 :lat deg-rad)
+        λ₂ (-> point2 :lon deg-rad)
+        Δφ (- φ₂ φ₁)
+        Δλ (- λ₂ λ₁)
 
         a (+ (math/expt (Math/sin (/ Δφ 2)) 2)
              (*
-               (Math/cos φ1)
-               (Math/cos φ2)
+               (Math/cos φ₁)
+               (Math/cos φ₂)
                (math/expt (Math/sin (/ Δλ 2)) 2)))
 
         c (* 2 (Math/atan2 (math/sqrt a)
