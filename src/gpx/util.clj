@@ -1,5 +1,10 @@
 (ns gpx.util
-    (:require [clojure.string :as str]))
+  (:require
+    [clojure.java.io :as io]
+    [clojure.string :as str]
+    [clojure.xml :as xml]
+    [clojure.zip :as zip]
+))
 
 (def alphanumerics (map char
     (concat
@@ -14,3 +19,24 @@
   ([]    (random-id default-id-length))
   ([len] (str/join
             (repeatedly len #(rand-nth alphanumerics)))))
+
+(defn zipxml [path]
+  "Loads an XML file from the given path, parse it and creates a zipper."
+  (let [file (io/file path)]
+    (if (.exists file)
+      (zip/xml-zip (xml/parse file))
+      (throw (Exception. (str "File not found: " path)))
+  )))
+
+(defn pairs
+  "Takes a collection and returns a list of neighbouring pairs.
+   e.g. (1 2 3 4) => ((1 2) (2 3) (3 4))"
+  [col]
+  (if (< (count col) 2)
+    (throw (Exception. "Collection too short, at least 2 elements required")))
+
+  (lazy-seq
+    (let [pair (take 2 col)]
+      (if (= (count col) 2)
+        (list pair)
+        (conj (pairs (drop 1 col)) pair) ))))

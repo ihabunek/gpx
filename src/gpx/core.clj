@@ -2,35 +2,12 @@
   (:gen-class)
   (:require
         [clj-time.core :as t]
-        [clj-time.format :as f]
-        [clojure.java.io :as io]
-        [clojure.xml :as xml]
-        [clojure.zip :as zip]
         [gpx.geo :as geo]
         [gpx.parse :as parse]
+        [gpx.util :refer [pairs zipxml]]
   ))
 
 ; --- Helpers ------------------------------------------------------------------
-
-(defn zipfile [path]
-  (let [file (io/file path)]
-    (if (.exists file)
-      (zip/xml-zip (xml/parse file))
-      (throw (Exception. (str "File not found: " path)))
-      )))
-
-(defn pairs
-  "Takes a collection and returns a list of neighbouring pairs.
-   e.g. (1 2 3 4) => ((1 2) (2 3) (3 4))"
-  [col]
-  (if (< (count col) 2)
-    (throw (Exception. "Collection too short, at least 2 elements required")))
-
-  (lazy-seq
-    (let [pair (take 2 col)]
-      (if (= (count col) 2)
-        (list pair)
-        (conj (pairs (drop 1 col)) pair) ))))
 
 (defn average [col]
   (/ (reduce + col) (count col)))
@@ -87,7 +64,7 @@
 
 (defn -main
   [& args]
-  (let [points (parse/points (zipfile (first args)))
+  (let [points (parse/points (zipxml (first args)))
         speeds (speeds points)
     ]
 
