@@ -10,6 +10,7 @@
     [clj-time "0.11.0"]
     [compojure "1.4.0"]
     [ring/ring-defaults "0.1.5"]
+    [selmer "1.0.4"]
   ]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler gpx.handler/app}
