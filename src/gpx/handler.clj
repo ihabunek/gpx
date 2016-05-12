@@ -1,21 +1,48 @@
 (ns gpx.handler
-  (:require [compojure.core :refer :all]
-            [compojure.route :as route]
-            [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
-            [ring.util.anti-forgery :refer :all]
-            [selmer.parser :refer [render-file ]]
-  ))
+  (:require
+      [clojure.java.io :as io]
+      [compojure.core :refer :all]
+      [compojure.route :as route]
+      [gpx.util :as util]
+      [gpx.core :as core]
+      [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
+      [ring.util.response :refer [redirect]]
+      [selmer.parser :refer [render-file ]
+  ]))
 
-(def index
-  (render-file "templates/index.html"
-    { :csrf-field (anti-forgery-field) }))
+; Disable template cache for development
+(selmer.parser/cache-off!)
+
+; TODO: make sure file with generated id does not exist
+; TODO: create an absolute target path
+; TODO: keep a hash to eliminate duplicates?
+(defn upload [params]
+  (let [tempfile (-> params :route :tempfile)
+        id (util/random-id)
+        target (str "resources/uploads/" id ".gpx")]
+
+    (io/copy tempfile (io/file target))
+    (redirect (str "/track/" id) :see-other)))
+
+(defn index []
+  (render-file "templates/index.html" {} ))
+
+(defn track [id]
+  (let [source (io/resource (str "uploads/" id ".gpx"))
+        track (core/parse-track source)]
+
+    (render-file "templates/track.html" { :track track
+                                          :track-id id } )))
 
 (defroutes app-routes
-  (GET "/" [] index)
-  (POST "/upload" [foo] (println foo))
+  (GET "/" [] (index))
+  (POST "/upload" {params :params} (upload params))
+  (GET "/track/:id" [id] (track id))
   (route/not-found "Not Found"))
 
-(def handler
-  (do
-    (selmer.parser/cache-off!)
-    (wrap-defaults app-routes site-defaults)))
+; TODO: disabled anti-forgety for now because i couldn't get it to work
+(def site-config
+  (assoc-in site-defaults [:security :anti-forgery] false))
+
+(def app
+  (wrap-defaults app-routes site-config))

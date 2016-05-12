@@ -3,7 +3,7 @@
 {% block content %}
     <h1>GPX route upload</h1>
     <p>Do upload a GPX route, good sir:</p>
-    <form method="post" action="upload">
+    <form method="post" action="upload" enctype="multipart/form-data">
         {{ csrf-field|safe }}
         <label>GPX file</label>
         <input type="file" name="route" />

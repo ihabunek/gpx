@@ -60,7 +60,23 @@
           { :lat (apply max lats) :lon (apply max lons) :ele (apply max eles) })
   ))
 
+(defn parse-track [source]
+  (let [points (parse/points (zipxml source))
+        speeds (speeds points) ]
+
+      { :total {
+          :distance (distance points)
+          :duration (t/in-seconds (duration points)) }
+        :speed {
+          :avg (average speeds)
+          :max (apply max speeds) }
+        :elevation {
+          :gain (elevation-gained points)
+          :loss (elevation-lost points)
+          :diff (elevation-diff (first points) (last points)) }}))
+
 ; --- Main ---------------------------------------------------------------------
+
 
 (defn -main
   [& args]

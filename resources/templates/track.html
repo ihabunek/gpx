@@ -1,0 +1,23 @@
+{% extends "templates/base.html" %}
+
+{% block content %}
+<h1>Here is your track <small>{{ track-id }}</small></h1>
+
+<h3>Totals</h3>
+
+Distance {{ track.total.distance }} m<br />
+Duration {{ track.total.duration }} s
+
+<h3>Speeds</h3>
+
+Max: {{ track.speed.max }} m/s<br />
+Avg: {{ track.speed.avg }} m/s
+
+<h3>Elevation</h3>
+
+
+Gain: {{ track.elevation.gain }} m<br />
+Loss: {{ track.elevation.loss }} m<br />
+Diff: {{ track.elevation.diff }} m
+
+{% endblock content %}
