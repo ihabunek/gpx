@@ -1,9 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>GPX</title>
-</head>
-<body>
-    <p>'ello world</p>
-</body>
-</html>
+{% extends "templates/base.html" %}
+
+{% block content %}
+    <h1>GPX route upload</h1>
+    <p>Do upload a GPX route, good sir:</p>
+    <form method="post" action="upload">
+        {{ csrf-field|safe }}
+        <label>GPX file</label>
+        <input type="file" name="route" />
+        <button class="button">Upload</button>
+    </form>
+{% endblock content %}
