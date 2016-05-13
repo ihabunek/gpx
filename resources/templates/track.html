@@ -1,23 +1,28 @@
 {% extends "templates/base.html" %}
 
 {% block content %}
-<h1>Here is your track <small>{{ track-id }}</small></h1>
+<h1>{{ track.metadata.name }}</h1>
+
+<h3>Metadata</h3>
+
+Time: {{ track.metadata.time|date:fullDateTime }}<br />
+Link: {{ track.metadata.link }}
 
 <h3>Totals</h3>
 
-Distance {{ track.total.distance }} m<br />
-Duration {{ track.total.duration }} s
+Distance {{ total.distance|double-format:1 }} m<br />
+Duration {{ total.duration|double-format:0 }} s
 
 <h3>Speeds</h3>
 
-Max: {{ track.speed.max }} m/s<br />
-Avg: {{ track.speed.avg }} m/s
+Max: {{ speed.max|double-format:2 }} m/s<br />
+Avg: {{ speed.avg|double-format:2 }} m/s
 
 <h3>Elevation</h3>
 
 
-Gain: {{ track.elevation.gain }} m<br />
-Loss: {{ track.elevation.loss }} m<br />
-Diff: {{ track.elevation.diff }} m
+Gain: {{ elevation.gain }} m<br />
+Loss: {{ elevation.loss }} m<br />
+Diff: {{ elevation.diff }} m
 
 {% endblock content %}

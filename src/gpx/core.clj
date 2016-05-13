@@ -5,6 +5,7 @@
         [gpx.geo :as geo]
         [gpx.parse :as parse]
         [gpx.util :refer [pairs zipxml]]
+        [clojure.pprint :refer [pprint]]
   ))
 
 ; --- Helpers ------------------------------------------------------------------
@@ -61,10 +62,14 @@
   ))
 
 (defn parse-track [source]
-  (let [points (parse/points (zipxml source))
+  (let [track (parse/parse-gpx source)
+        points (:points track)
         speeds (speeds points) ]
 
-      { :total {
+      {
+        :track track
+        :points points
+        :total {
           :distance (distance points)
           :duration (t/in-seconds (duration points)) }
         :speed {
@@ -77,21 +82,6 @@
 
 ; --- Main ---------------------------------------------------------------------
 
-
 (defn -main
   [& args]
-  (let [points (parse/points (zipxml (first args)))
-        speeds (speeds points)
-    ]
-
-     (println (str "Distance: " (format "%.1f" (distance points)) " m"))
-     (println (str "Duration: " (t/in-seconds (duration points)) " s"))
-     (println)
-     (println (str "Max speed: " (format "%.3f" (apply max speeds)) " m/s"))
-     (println (str "Avg speed: " (format "%.3f" (average speeds)) " m/s"))
-     (println)
-     (println (str "Elevation gain: " (format "%d" (elevation-gained points)) " m"))
-     (println (str "Elevation loss: " (format "%d" (elevation-lost points)) " m"))
-     (println (str "Elevation diff: " (format "%d" (elevation-diff (first points) (last points))) " m"))
-     (println)
-  ))
+  (pprint (parse/parse-gpx (first args))))

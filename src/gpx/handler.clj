@@ -7,8 +7,8 @@
       [gpx.core :as core]
       [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
       [ring.util.response :refer [redirect]]
-      [selmer.parser :refer [render-file ]
-  ]))
+      [selmer.parser :refer [render-file]]
+  ))
 
 ; Disable template cache for development
 (selmer.parser/cache-off!)
@@ -31,13 +31,12 @@
   (let [source (io/resource (str "uploads/" id ".gpx"))
         track (core/parse-track source)]
 
-    (render-file "templates/track.html" { :track track
-                                          :track-id id } )))
+    (render-file "templates/track.html" track )))
 
 (defroutes app-routes
   (GET "/" [] (index))
+  (GET "/:id" [id] (track id))
   (POST "/upload" {params :params} (upload params))
-  (GET "/track/:id" [id] (track id))
   (route/not-found "Not Found"))
 
 ; TODO: disabled anti-forgety for now because i couldn't get it to work
