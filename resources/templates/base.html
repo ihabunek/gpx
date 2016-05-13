@@ -3,10 +3,15 @@
 <head>
     <title>{% block title %}GPX{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.1/foundation-flex.min.css" />
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    {% block head %}{% endblock %}
 </head>
 <body>
     <div class="row column">
         {% block content %}{% endblock %}
     </div>
+
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    {% block script %}{% endblock %}
 </body>
 </html>

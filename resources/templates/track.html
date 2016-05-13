@@ -8,6 +8,10 @@
 Time: {{ track.metadata.time|date:fullDateTime }}<br />
 Link: {{ track.metadata.link }}
 
+<h3>Map</h3>
+
+<div id="track-map"></div>
+
 <h3>Totals</h3>
 
 Distance {{ total.distance|double-format:1 }} m<br />
@@ -20,9 +24,62 @@ Avg: {{ speed.avg|double-format:2 }} m/s
 
 <h3>Elevation</h3>
 
-
 Gain: {{ elevation.gain }} m<br />
 Loss: {{ elevation.loss }} m<br />
 Diff: {{ elevation.diff }} m
-
 {% endblock content %}
+
+{% block head %}
+<style type="text/css">
+    #track-map {
+        height: 600px;
+    }
+</style>
+{% endblock head %}
+
+{% block script %}
+<script type="text/javascript">
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+        var points = [{% for point in points %}[{{ point.lat }},{{ point.lon }}],{% endfor %}];
+        var speeds = [0,{% for speed in speeds %}{{ speed|double-format:2 }},{% endfor %}];
+
+        var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+        });
+
+        var cyclemap = L.tileLayer('http://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>,' +
+                         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        });
+
+        var outdoors = L.tileLayer('https://[abc].tile.thunderforest.com/outdoors/{z}/{x}/{y}.png', {
+           attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>,' +
+                        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        })
+
+        var defaultLayer = osm;
+
+        var layers = {
+            "OpenStreetMap": osm,
+            "OpenCycleMap": cyclemap,
+            "Outdoors": outdoors,
+        };
+
+        var trackMap = L.map('track-map').addLayer(defaultLayer);
+
+        // Draw the track
+        var latLngs = points.map(function (item) {
+            return L.latLng(item[0], item[1]);
+        });
+
+        var polyline = L.polyline(latLngs).addTo(trackMap);
+
+        // Fit map to track
+        trackMap.fitBounds(polyline.getBounds());
+
+        // Add layer control
+        L.control.layers(layers).addTo(trackMap);
+    });
+</script>
+{% endblock script %}
