@@ -1,12 +1,12 @@
 {% extends "templates/base.html" %}
 
 {% block content %}
-<h1>{{ track.metadata.name }}</h1>
+<h1>{{ metadata.name }}</h1>
 
 <h3>Metadata</h3>
 
-Time: {{ track.metadata.time|date:fullDateTime }}<br />
-Link: {{ track.metadata.link }}
+Time: {{ metadata.time|date:fullDateTime }}<br />
+Link: {{ metadata.link }}
 
 <h3>Map</h3>
 
@@ -14,19 +14,19 @@ Link: {{ track.metadata.link }}
 
 <h3>Totals</h3>
 
-Distance {{ total.distance|double-format:1 }} m<br />
-Duration {{ total.duration|double-format:0 }} s
+Distance {{ stats.total.distance|double-format:1 }} m<br />
+Duration {{ stats.total.duration|double-format:0 }} s
 
 <h3>Speeds</h3>
 
-Max: {{ speed.max|double-format:2 }} m/s<br />
-Avg: {{ speed.avg|double-format:2 }} m/s
+Max: {{ stats.speed.max|double-format:2 }} m/s<br />
+Avg: {{ stats.speed.avg|double-format:2 }} m/s
 
 <h3>Elevation</h3>
 
-Gain: {{ elevation.gain }} m<br />
-Loss: {{ elevation.loss }} m<br />
-Diff: {{ elevation.diff }} m
+Gain: {{ stats.elevation.gain }} m<br />
+Loss: {{ stats.elevation.loss }} m<br />
+Diff: {{ stats.elevation.diff }} m
 {% endblock content %}
 
 {% block head %}

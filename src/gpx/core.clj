@@ -2,10 +2,10 @@
   (:gen-class)
   (:require
         [clj-time.core :as t]
+        [clojure.pprint :refer [pprint]]
         [gpx.geo :as geo]
         [gpx.parse :as parse]
         [gpx.util :refer [pairs zipxml]]
-        [clojure.pprint :refer [pprint]]
   ))
 
 ; --- Helpers ------------------------------------------------------------------
@@ -32,7 +32,8 @@
   (map #(apply elevation-diff %) (pairs points)))
 
 (defn speeds [points]
-  (map / (distances points) (intervals points)))
+  (map (partial * 3.6)
+    (map / (distances points) (intervals points))))
 
 ; --- Totals -------------------------------------------------------------------
 
@@ -61,24 +62,25 @@
           { :lat (apply max lats) :lon (apply max lons) :ele (apply max eles) })
   ))
 
-(defn parse-track [source]
-  (let [track (parse/parse-gpx source)
-        points (:points track)
+(defn stats [track]
+  (let [points (:points track)
         speeds (speeds points) ]
+    { :total {
+        :distance (distance points)
+        :duration (t/in-seconds (duration points)) }
+      :speed {
+        :avg (average speeds)
+        :max (apply max speeds) }
+      :elevation {
+        :gain (elevation-gained points)
+        :loss (elevation-lost points)
+        :diff (elevation-diff (first points) (last points)) }} ))
 
-      {
-        :track track
-        :points points
-        :total {
-          :distance (distance points)
-          :duration (t/in-seconds (duration points)) }
-        :speed {
-          :avg (average speeds)
-          :max (apply max speeds) }
-        :elevation {
-          :gain (elevation-gained points)
-          :loss (elevation-lost points)
-          :diff (elevation-diff (first points) (last points)) }}))
+(defn parse-track [source-file]
+  (let [track (parse/parse-gpx source-file)]
+    { :points (:points track)
+      :metadata (:metadata track)
+      :stats (stats track) }))
 
 ; --- Main ---------------------------------------------------------------------
 
