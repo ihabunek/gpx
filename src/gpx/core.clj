@@ -79,7 +79,8 @@
 (defn parse-track [source-file]
   (let [track (parse/parse-gpx source-file)]
     { :points (:points track)
-      :metadata (:metadata track)
+      :name (-> track :metadata :name)
+      :meta (:metadata track)
       :stats (stats track) }))
 
 ; --- Main ---------------------------------------------------------------------

@@ -1,12 +1,12 @@
 {% extends "templates/base.html" %}
 
 {% block content %}
-<h1>{{ metadata.name }}</h1>
+<h1>{{ name }}</h1>
 
 <h3>Metadata</h3>
 
-Time: {{ metadata.time|date:fullDateTime }}<br />
-Link: {{ metadata.link }}
+Time: {{ meta.time|date:fullDateTime }}<br />
+Link: {{ meta.link }}
 
 <h3>Map</h3>
 

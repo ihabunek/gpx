@@ -3,8 +3,9 @@
       [clojure.java.io :as io]
       [compojure.core :refer :all]
       [compojure.route :as route]
-      [gpx.util :as util]
       [gpx.core :as core]
+      [gpx.db :as db]
+      [gpx.util :as util]
       [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
       [ring.util.response :refer [redirect]]
       [selmer.parser :refer [render-file]]
@@ -14,28 +15,22 @@
 (selmer.parser/cache-off!)
 
 ; TODO: make sure file with generated id does not exist
-; TODO: create an absolute target path
 ; TODO: keep a hash to eliminate duplicates?
 (defn upload [params]
   (let [tempfile (-> params :route :tempfile)
-        id (util/random-id)
-        target (str "resources/uploads/" id ".gpx")]
-
-    (io/copy tempfile (io/file target))
-    (redirect (str "/track/" id) :see-other)))
+        track (core/parse-track tempfile)
+        created (db/create-track! track)]
+    (redirect (str "/" (:slug created)) :see-other) ))
 
 (defn index []
   (render-file "templates/index.html" {} ))
 
-(defn track [id]
-  (let [source (io/resource (str "uploads/" id ".gpx"))
-        track (core/parse-track source)]
-
-    (render-file "templates/track.html" track )))
+(defn track [slug]
+  (render-file "templates/track.html" (db/fetch-track slug) ))
 
 (defroutes app-routes
   (GET "/" [] (index))
-  (GET "/:id" [id] (track id))
+  (GET "/:slug" [slug] (track slug))
   (POST "/upload" {params :params} (upload params))
   (route/not-found "Not Found"))
 
