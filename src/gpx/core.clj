@@ -84,4 +84,6 @@
 
 (defn -main
   [& args]
-  (pprint (parse/parse-gpx (first args))))
+  (if (empty? args)
+    (println "No input file given.")
+    (pprint (parse/parse-gpx (first args))) ))
