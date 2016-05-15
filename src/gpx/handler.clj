@@ -16,11 +16,18 @@
 
 ; --- Routes -------------------------------------------------------------------
 
+(defn not-found []
+  (route/not-found
+    (render-file "templates/404.html" {} )))
+
 (defn index []
   (render-file "templates/index.html" {} ))
 
 (defn track [slug]
-  (render-file "templates/track.html" (db/fetch-track slug) ))
+  (let [track (db/fetch-track slug)]
+    (if (nil? track)
+      (not-found)
+      (render-file "templates/track.html" track))))
 
 (defn upload [params]
   (let [tempfile (-> params :route :tempfile)
@@ -32,7 +39,7 @@
   (GET "/" [] (index))
   (GET "/:slug{[A-Za-z0-9]{6}}" [slug] (track slug))
   (POST "/upload" {params :params} (upload params))
-  (route/not-found "Not Found"))
+  (not-found))
 
 ; --- Application --------------------------------------------------------------
 
