@@ -64,5 +64,5 @@
 (defn parse-gpx-file
   "Returns track information from a zipped gpx file"
   [file-path]
-  (parse-gpx-inner
+  (parse-gpx
     (util/zipxml file-path)))

@@ -1,97 +1,145 @@
 {% extends "templates/base.html" %}
 
 {% block content %}
-<h1>{{ name }}</h1>
+  <h1>{{ name }}</h1>
 
-<h3>Metadata</h3>
+  <h3>Metadata</h3>
 
-Time: {{ metadata.time|date:fullDateTime }}<br />
-Link: {{ metadata.link }}
+  Time: {{ metadata.time|date:fullDateTime }}<br />
+  Link: {{ metadata.link }}
 
-<h3>Map</h3>
+  <h3>Map</h3>
 
-<div id="track-map"></div>
+  <div id="track-map"></div>
 
-<h3>Totals</h3>
+  <h3>Elevation plot</h3>
 
-Distance {{ stats.total.distance|double-format:1 }} m<br />
-Duration {{ stats.total.duration|double-format:0 }} s
+  <canvas id="elevation-chart"></canvas>
 
-<h3>Speeds</h3>
+  <h3>Totals</h3>
 
-Max: {{ stats.speed.max|double-format:2 }} km/h<br />
-Avg: {{ stats.speed.avg|double-format:2 }} km/h
+  Distance {{ stats.total.distance|double-format:1 }} m<br />
+  Duration {{ stats.total.duration|double-format:0 }} s
 
-<h3>Elevation</h3>
+  <h3>Speeds</h3>
 
-Gain: {{ stats.elevation.gain|double-format:1 }} m<br />
-Loss: {{ stats.elevation.loss|double-format:1 }} m<br />
-Diff: {{ stats.elevation.diff|double-format:1 }} m
+  Max: {{ stats.speed.max|double-format:2 }} km/h<br />
+  Avg: {{ stats.speed.avg|double-format:2 }} km/h
+
+  <h3>Elevation</h3>
+
+  Gain: {{ stats.elevation.gain|double-format:1 }} m<br />
+  Loss: {{ stats.elevation.loss|double-format:1 }} m<br />
+  Diff: {{ stats.elevation.diff|double-format:1 }} m
 {% endblock content %}
 
 {% block head %}
-<style type="text/css">
+  <link rel="stylesheet" href="/assets/leaflet/leaflet.css" />
+  <style type="text/css">
     #track-map {
-        height: 600px;
+      height: 600px;
     }
-</style>
+  </style>
 {% endblock head %}
 
 {% block script %}
-<script type="text/javascript">
+  <script src="/assets/leaflet/leaflet.js"></script>
+  <script src="/assets/Chart.js/dist/Chart.bundle.js "></script>
+
+  <script type="text/javascript">
+
+    function elevationChart(targetID, times, elevations) {
+      var target = document.getElementById(targetID);
+
+      var options = {
+        hover: {
+          mode: "label"
+        },
+        elements: {
+          point: {
+            radius: 0,
+            hitRadius: 10
+          }
+        },
+      };
+
+      var data = {
+        // labels: times.map(function (time) { return moment(time) }),
+        labels: times,
+        datasets: [{
+          label: "Elevation",
+          data: elevations,
+          backgroundColor: "rgba(75,192,192,0.4)",
+            borderColor: "rgba(75,192,192,1)",
+        }]
+      };
+
+      return new Chart(target, {
+          type: 'line',
+          data: data,
+          options: options
+      });
+    }
+
 
     document.addEventListener("DOMContentLoaded", function(event) {
-        var segments = [{% for s in segment %}
-            [{% for point in s.path %}[{{ point.lat }},{{ point.lon }}],{% endfor %}]
+      var segments = [{% for s in segment %}
+        [{% for point in s.path %}[{{ point.lat }},{{ point.lon }}],{% endfor %}]
+      {% endfor %}];
+
+      var waypoints = [
+        {% for wp in waypoints %}{ "lat": {{ wp.lat }}, "lon": {{ wp.lon }}, "name": "{{ wp.name }}" },
         {% endfor %}];
 
-        var waypoints = [
-            {% for wp in waypoints %}{ "lat": {{ wp.lat }}, "lon": {{ wp.lon }}, "name": "{{ wp.name }}" },{% endfor %}
-        ];
+      var elevations = [{% for s in segment %}{% for point in s.path %}{{ point.ele }},{% endfor %}{% endfor %}];
+      var times = [{% for s in segment %}{% for point in s.path %}"{{ point.time }}",{% endfor %}{% endfor %}];
 
-        var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-        });
+      var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+      });
 
-        var cyclemap = L.tileLayer('http://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>,' +
-                         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        });
+      var cyclemap = L.tileLayer('http://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>,' +
+                     '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      });
 
-        var outdoors = L.tileLayer('https://[abc].tile.thunderforest.com/outdoors/{z}/{x}/{y}.png', {
-           attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>,' +
-                        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      var outdoors = L.tileLayer('https://[abc].tile.thunderforest.com/outdoors/{z}/{x}/{y}.png', {
+         attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>,' +
+                      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      })
+
+      var defaultLayer = osm;
+
+      var layers = {
+        "OpenStreetMap": osm,
+        "OpenCycleMap": cyclemap,
+        "Outdoors": outdoors,
+      };
+
+      var trackMap = L.map('track-map').addLayer(defaultLayer);
+
+      // Draw the line segments
+      var points = segments.map(function (segment) {
+        return segment.map(function (point) {
+          return L.latLng(point[0], point[1]);
         })
+      })
 
-        var defaultLayer = osm;
+      var line = L.multiPolyline(points).addTo(trackMap);
+      trackMap.fitBounds(line.getBounds());
 
-        var layers = {
-            "OpenStreetMap": osm,
-            "OpenCycleMap": cyclemap,
-            "Outdoors": outdoors,
-        };
+      // Add waypoint markers
+      waypoints.map(function(wp) {
+        L.marker([wp.lat, wp.lon])
+          .bindPopup(wp.name)
+          .addTo(trackMap);
+      });
 
-        var trackMap = L.map('track-map').addLayer(defaultLayer);
+      // Add layer control
+      L.control.layers(layers).addTo(trackMap);
 
-        // Draw the line segments
-        var points = segments.map(function (segment) {
-            return segment.map(function (point) {
-                return L.latLng(point[0], point[1]);
-            })
-        })
+      var eleChart = elevationChart('elevation-chart', times, elevations);
 
-        var line = L.multiPolyline(points).addTo(trackMap);
-        trackMap.fitBounds(line.getBounds());
-
-        // Add waypoint markers
-        waypoints.map(function(wp) {
-            L.marker([wp.lat, wp.lon])
-                .bindPopup(wp.name)
-                .addTo(trackMap);
-        });
-
-        // Add layer control
-        L.control.layers(layers).addTo(trackMap);
     });
-</script>
+  </script>
 {% endblock script %}

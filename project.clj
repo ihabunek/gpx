@@ -11,6 +11,7 @@
     [org.clojure/clojure  "1.8.0"]
     [org.clojure/data.json "0.2.6"]
     [org.clojure/data.zip "0.1.1"]
+    [org.webjars.bower/Chart.js "2.0.2"]
     [org.webjars/foundation "6.2.0"]
     [org.webjars/leaflet "0.7.7"]
     [postgresql "9.3-1102.jdbc41"]
