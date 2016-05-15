@@ -41,8 +41,9 @@ Diff: {{ stats.elevation.diff }} m
 <script type="text/javascript">
 
     document.addEventListener("DOMContentLoaded", function(event) {
-        var points = [{% for point in points %}[{{ point.lat }},{{ point.lon }}],{% endfor %}];
-        var speeds = [0,{% for speed in speeds %}{{ speed|double-format:2 }},{% endfor %}];
+        var segments = [{% for s in segment %}
+            [{% for point in s.path %}[{{ point.lat }},{{ point.lon }}],{% endfor %}]
+        {% endfor %}];
 
         var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
@@ -68,15 +69,15 @@ Diff: {{ stats.elevation.diff }} m
 
         var trackMap = L.map('track-map').addLayer(defaultLayer);
 
-        // Draw the track
-        var latLngs = points.map(function (item) {
-            return L.latLng(item[0], item[1]);
-        });
+        // Draw the line segments
+        var points = segments.map(function (segment) {
+            return segment.map(function (point) {
+                return L.latLng(point[0], point[1]);
+            })
+        })
 
-        var polyline = L.polyline(latLngs).addTo(trackMap);
-
-        // Fit map to track
-        trackMap.fitBounds(polyline.getBounds());
+        var line = L.multiPolyline(points).addTo(trackMap);
+        trackMap.fitBounds(line.getBounds());
 
         // Add layer control
         L.control.layers(layers).addTo(trackMap);

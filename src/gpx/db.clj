@@ -38,6 +38,12 @@
   (assoc data :meta (to-json (:meta data))
               :stats (to-json (:stats data))))
 
+(defn transform-segment [data]
+  (assoc data :path (from-json (:path data))))
+
+(defn prepare-segment [data]
+  (assoc data :path (to-json (:path data))))
+
 ; --- Entitites ----------------------------------------------------------------
 
 (declare track segment user)
@@ -52,18 +58,27 @@
   (has-many segment))
 
 (defentity segment
+  (transform transform-segment)
+  (prepare prepare-segment)
   (belongs-to track))
 
 ; --- Access functions ---------------------------------------------------------
 
 (defn create-track! [data]
-  (let [slug (util/random-id)]
-    (insert track
-      (values (-> data
-        (assoc :slug slug)
-        (dissoc :id :points))))))
+  (let [slug (util/random-id) ; TODO: check if exists
+        the-track (insert track
+                    (values (-> data
+                      (assoc :slug slug)
+                      (dissoc :id :points))))
+        track-id (:id the-track)
+        the-segment (insert segment
+                      (values { :track_id track-id
+                                :path (:points data)}))]
+        the-track
+))
 
 (defn fetch-track [slug]
   (first (select track
+    (with segment)
     (where { :slug slug } )
     (limit 1))))

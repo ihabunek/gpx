@@ -14,13 +14,7 @@
 ; Disable template cache for development
 (selmer.parser/cache-off!)
 
-; TODO: make sure file with generated id does not exist
-; TODO: keep a hash to eliminate duplicates?
-(defn upload [params]
-  (let [tempfile (-> params :route :tempfile)
-        track (core/parse-track tempfile)
-        created (db/create-track! track)]
-    (redirect (str "/" (:slug created)) :see-other) ))
+; --- Routes -------------------------------------------------------------------
 
 (defn index []
   (render-file "templates/index.html" {} ))
@@ -28,11 +22,19 @@
 (defn track [slug]
   (render-file "templates/track.html" (db/fetch-track slug) ))
 
+(defn upload [params]
+  (let [tempfile (-> params :route :tempfile)
+        track (core/parse-track tempfile)
+        created (db/create-track! track)]
+    (redirect (str "/" (:slug created)) :see-other) ))
+
 (defroutes app-routes
   (GET "/" [] (index))
-  (GET "/:slug" [slug] (track slug))
+  (GET "/:slug{[A-Za-z0-9]{6}}" [slug] (track slug))
   (POST "/upload" {params :params} (upload params))
   (route/not-found "Not Found"))
+
+; --- Application --------------------------------------------------------------
 
 ; TODO: disabled anti-forgety for now because i couldn't get it to work
 (def site-config
