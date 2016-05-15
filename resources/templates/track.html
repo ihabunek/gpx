@@ -5,8 +5,8 @@
 
 <h3>Metadata</h3>
 
-Time: {{ meta.time|date:fullDateTime }}<br />
-Link: {{ meta.link }}
+Time: {{ metadata.time|date:fullDateTime }}<br />
+Link: {{ metadata.link }}
 
 <h3>Map</h3>
 
@@ -19,14 +19,14 @@ Duration {{ stats.total.duration|double-format:0 }} s
 
 <h3>Speeds</h3>
 
-Max: {{ stats.speed.max|double-format:2 }} m/s<br />
-Avg: {{ stats.speed.avg|double-format:2 }} m/s
+Max: {{ stats.speed.max|double-format:2 }} km/h<br />
+Avg: {{ stats.speed.avg|double-format:2 }} km/h
 
 <h3>Elevation</h3>
 
-Gain: {{ stats.elevation.gain }} m<br />
-Loss: {{ stats.elevation.loss }} m<br />
-Diff: {{ stats.elevation.diff }} m
+Gain: {{ stats.elevation.gain|double-format:1 }} m<br />
+Loss: {{ stats.elevation.loss|double-format:1 }} m<br />
+Diff: {{ stats.elevation.diff|double-format:1 }} m
 {% endblock content %}
 
 {% block head %}
@@ -44,6 +44,10 @@ Diff: {{ stats.elevation.diff }} m
         var segments = [{% for s in segment %}
             [{% for point in s.path %}[{{ point.lat }},{{ point.lon }}],{% endfor %}]
         {% endfor %}];
+
+        var waypoints = [
+            {% for wp in waypoints %}{ "lat": {{ wp.lat }}, "lon": {{ wp.lon }}, "name": "{{ wp.name }}" },{% endfor %}
+        ];
 
         var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
@@ -78,6 +82,13 @@ Diff: {{ stats.elevation.diff }} m
 
         var line = L.multiPolyline(points).addTo(trackMap);
         trackMap.fitBounds(line.getBounds());
+
+        // Add waypoint markers
+        waypoints.map(function(wp) {
+            L.marker([wp.lat, wp.lon])
+                .bindPopup(wp.name)
+                .addTo(trackMap);
+        });
 
         // Add layer control
         L.control.layers(layers).addTo(trackMap);

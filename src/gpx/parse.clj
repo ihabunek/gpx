@@ -3,7 +3,7 @@
     [clj-time.format :as f]
     [clj-time.core :as t]
     [clojure.data.zip :refer [rightmost?]]
-    [clojure.data.zip.xml :refer [xml1-> attr text]]
+    [clojure.data.zip.xml :refer [xml-> xml1-> attr text]]
     [clojure.zip :as zip]
     [gpx.util :as util]
   ))
@@ -35,28 +35,33 @@
    (trkpt-seq-inner
      (xml1-> zgpx :trk :trkseg :trkpt))) ; the first <trkpt> node
 
-(defn parse-trkpt
-  "Extracts the information from a gpx <trkpt> zipper"
-  [zpoint]
-    { :lat (read-string (attr zpoint :lat))
-      :lon (read-string (attr zpoint :lon))
-      :ele (xml1-> zpoint :ele text read-string)
-      :time (xml1-> zpoint :time text parse-datetime) })
+(defn parse-wpt [wpt]
+  { :lat (read-string (attr wpt :lat))
+    :lon (read-string (attr wpt :lon))
+    :ele (xml1-> wpt :ele text read-string)
+    :time (xml1-> wpt :time text parse-datetime)
+    :name (xml1-> wpt :name text)
+    :sym (xml1-> wpt :sym text)
+    :type (xml1-> wpt :type text) })
 
-(defn parse-metadata
-  "Returns the gpx metadata
-   See: http://www.topografix.com/GPX/1/1/#type_metadataType"
-   [zgpx]
-   { :name (xml1-> zgpx :metadata :name text)
-     :desc (xml1-> zgpx :metadata :desc text)
-     :time (xml1-> zgpx :metadata :time text parse-datetime)
-     :link (xml1-> zgpx :metadata :link (attr :href)) })
+(defn parse-trkpt [trkpt]
+  { :lat (read-string (attr trkpt :lat))
+    :lon (read-string (attr trkpt :lon))
+    :ele (xml1-> trkpt :ele text read-string)
+    :time (xml1-> trkpt :time text parse-datetime) })
 
-(defn parse-gpx-inner [zgpx]
-  { :points (map parse-trkpt (trkpt-seq zgpx))
-    :metadata (parse-metadata zgpx) })
+(defn parse-metadata [metadata]
+   { :name (xml1-> metadata :name text)
+     :desc (xml1-> metadata :desc text)
+     :time (xml1-> metadata :time text parse-datetime)
+     :link (xml1-> metadata :link (attr :href)) })
 
-(defn parse-gpx
+(defn parse-gpx [gpx]
+  { :points (map parse-trkpt (trkpt-seq gpx))
+    :waypoints (map parse-wpt (xml-> gpx :wpt))
+    :metadata (some-> (:metadata gpx) parse-metadata) })
+
+(defn parse-gpx-file
   "Returns track information from a zipped gpx file"
   [file-path]
   (parse-gpx-inner

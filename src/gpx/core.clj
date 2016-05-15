@@ -77,10 +77,11 @@
         :diff (elevation-diff (first points) (last points)) }} ))
 
 (defn parse-track [source-file]
-  (let [track (parse/parse-gpx source-file)]
+  (let [track (parse/parse-gpx-file source-file)]
     { :points (:points track)
+      :waypoints (:waypoints track)
       :name (-> track :metadata :name)
-      :meta (:metadata track)
+      :metadata (:metadata track)
       :stats (stats track) }))
 
 ; --- Main ---------------------------------------------------------------------
@@ -89,4 +90,4 @@
   [& args]
   (if (empty? args)
     (println "No input file given.")
-    (pprint (parse/parse-gpx (first args))) ))
+    (pprint (:waypoints (parse/parse-gpx (first args))) )))

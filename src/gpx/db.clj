@@ -31,12 +31,14 @@
   (json/read-str (.getValue pg-object) :value-fn value-reader :key-fn keyword))
 
 (defn transform-track [data]
-  (assoc data :meta (from-json (:meta data))
-              :stats (from-json (:stats data))))
+  (assoc data :metadata (from-json (:metadata data))
+              :stats (from-json (:stats data))
+              :waypoints (from-json (:waypoints data))))
 
 (defn prepare-track [data]
-  (assoc data :meta (to-json (:meta data))
-              :stats (to-json (:stats data))))
+  (assoc data :metadata (to-json (:metadata data))
+              :stats (to-json (:stats data))
+              :waypoints (to-json (:waypoints data))))
 
 (defn transform-segment [data]
   (assoc data :path (from-json (:path data))))
@@ -67,9 +69,10 @@
 (defn create-track! [data]
   (let [slug (util/random-id) ; TODO: check if exists
         the-track (insert track
-                    (values (-> data
-                      (assoc :slug slug)
-                      (dissoc :id :points))))
+                    (values
+                      (-> data
+                        (select-keys [:name :metadata :stats :waypoints])
+                        (assoc :slug slug))))
         track-id (:id the-track)
         the-segment (insert segment
                       (values { :track_id track-id
