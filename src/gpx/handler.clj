@@ -7,6 +7,7 @@
       [gpx.db :as db]
       [gpx.util :as util]
       [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
+      [ring.middleware.webjars :refer [wrap-webjars]]
       [ring.util.response :refer [redirect]]
       [selmer.parser :refer [render-file]]
   ))
@@ -45,7 +46,9 @@
 
 ; TODO: disabled anti-forgety for now because i couldn't get it to work
 (def site-config
-  (assoc-in site-defaults [:security :anti-forgery] false))
+  (-> site-defaults
+      (assoc-in [:security :anti-forgery] false)))
 
 (def app
-  (wrap-defaults app-routes site-config))
+  (wrap-webjars
+    (wrap-defaults app-routes site-config)))
