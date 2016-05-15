@@ -15,7 +15,11 @@
     "yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
 
 (defn parse-datetime [string]
-  (f/parse multi-parser string))
+  (if (empty? string) nil
+    (try
+      (f/parse multi-parser string)
+      (catch Exception ex
+        (throw (Exception. (str "Failed parsing datetime string: \"" string "\"") ex))))))
 
 (defn trkpt-seq-inner [point]
   (lazy-seq
@@ -36,8 +40,8 @@
   [zpoint]
     { :lat (read-string (attr zpoint :lat))
       :lon (read-string (attr zpoint :lon))
-      :ele (read-string (xml1-> zpoint :ele text))
-      :time (parse-datetime (xml1-> zpoint :time text)) })
+      :ele (xml1-> zpoint :ele text read-string)
+      :time (xml1-> zpoint :time text parse-datetime) })
 
 (defn parse-metadata
   "Returns the gpx metadata
@@ -45,8 +49,8 @@
    [zgpx]
    { :name (xml1-> zgpx :metadata :name text)
      :desc (xml1-> zgpx :metadata :desc text)
-     :time (parse-datetime (xml1-> zgpx :metadata :time text))
-     :link (attr (xml1-> zgpx :metadata :link) :href) })
+     :time (xml1-> zgpx :metadata :time text parse-datetime)
+     :link (xml1-> zgpx :metadata :link (attr :href)) })
 
 (defn parse-gpx-inner [zgpx]
   { :points (map parse-trkpt (trkpt-seq zgpx))
