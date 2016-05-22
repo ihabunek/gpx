@@ -29,14 +29,14 @@
   )))
 
 (defn pairs
-  "Takes a collection and returns a list of neighbouring pairs.
-   e.g. (1 2 3 4) => ((1 2) (2 3) (3 4))"
+  "Takes a collection and returns a vector of neighbouring pairs.
+   e.g. (1 2 3 4) => [(1 2) (2 3) (3 4)]"
   [col]
-  (if (< (count col) 2)
+  (if (empty? (drop 1 col))
     (throw (Exception. "Collection too short, at least 2 elements required")))
 
-  (lazy-seq
-    (let [pair (take 2 col)]
-      (if (= (count col) 2)
-        (list pair)
-        (conj (pairs (drop 1 col)) pair) ))))
+  (loop [result []
+         s col]
+    (if (empty? (drop 2 s))
+      (conj result (take 2 s))
+      (recur (conj result (take 2 s)) (rest s)))))
