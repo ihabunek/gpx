@@ -6,7 +6,8 @@
     [clojure.data.zip.xml :refer [xml-> xml1-> attr text]]
     [clojure.zip :as zip]
     [gpx.util :as util]
-  ))
+  )
+  (:import java.lang.Float))
 
 (def multi-parser
   (f/formatter
@@ -47,7 +48,7 @@
 (defn parse-trkpt [trkpt]
   { :lat (read-string (attr trkpt :lat))
     :lon (read-string (attr trkpt :lon))
-    :ele (xml1-> trkpt :ele text read-string)
+    :ele (Float/valueOf (xml1-> trkpt :ele text))
     :time (xml1-> trkpt :time text parse-datetime) })
 
 (defn parse-metadata [metadata]
@@ -57,9 +58,10 @@
      :link (xml1-> metadata :link (attr :href)) })
 
 (defn parse-gpx [gpx]
-  { :points (map parse-trkpt (trkpt-seq gpx))
+  { :name (xml1-> gpx :trk :name text)
+    :points (map parse-trkpt (trkpt-seq gpx))
     :waypoints (map parse-wpt (xml-> gpx :wpt))
-    :metadata (some-> (:metadata gpx) parse-metadata) })
+    :metadata (xml-> gpx :metadata parse-metadata) })
 
 (defn parse-gpx-file
   "Returns track information from a zipped gpx file"

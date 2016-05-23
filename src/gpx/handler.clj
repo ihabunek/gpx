@@ -1,6 +1,7 @@
 (ns gpx.handler
   (:require
       [clojure.java.io :as io]
+      [clojure.pprint :refer [pprint]]
       [compojure.core :refer :all]
       [compojure.route :as route]
       [gpx.core :as core]
@@ -33,8 +34,32 @@
 (defn upload [params]
   (let [tempfile (-> params :route :tempfile)
         track (core/parse-track tempfile)
-        created (db/create-track! track)]
-    (redirect (str "/" (:slug created)) :see-other) ))
+        points (:points track)
+        waypoints (:waypoints track)
+
+        created-track
+          (db/create-track!
+            (:name track)
+            (:metadata track)
+            (:stats track))]
+
+    (db/create-segment!
+      (:id created-track)
+      (map :lat points)
+      (map :lon points)
+      (map :ele points)
+      (map :time points))
+
+    (doall (for [wpt waypoints]
+      (db/create-waypoint!
+        (:id created-track)
+        (:name wpt)
+        (:lat wpt)
+        (:lon wpt)
+        (:ele wpt)
+        (:time wpt))))
+
+    (redirect (str "/" (:slug created-track)) :see-other) ))
 
 (defroutes app-routes
   (GET "/" [] (index))

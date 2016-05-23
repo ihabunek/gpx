@@ -5,8 +5,10 @@
             :url "https://opensource.org/licenses/MIT"}
   :dependencies [
     [clj-time "0.11.0"]
+    [clj-postgresql "0.4.0"]
     [compojure "1.4.0"]
-    [korma "0.4.0"]
+    ; [korma "0.4.0"]
+    [com.mchange/c3p0 "0.9.5.2"]
     [org.clojure/algo.generic "0.1.2"]
     [org.clojure/clojure  "1.8.0"]
     [org.clojure/data.json "0.2.6"]
@@ -20,6 +22,7 @@
     [selmer "1.0.4"]
     [yogthos/config "0.8"]
   ]
+  :resource-paths ["resources", "resources/korma-0.5.0-SNAPSHOT.jar"]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler gpx.handler/app}
   :main gpx.core

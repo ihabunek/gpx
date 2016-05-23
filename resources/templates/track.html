@@ -84,15 +84,15 @@
 
     document.addEventListener("DOMContentLoaded", function(event) {
       var segments = [{% for s in segment %}
-        [{% for point in s.path %}[{{ point.lat }},{{ point.lon }}],{% endfor %}]
+        [{% for point in s.points %}[{{ point.lat }},{{ point.lon }}],{% endfor %}]
       {% endfor %}];
 
       var waypoints = [
-        {% for wp in waypoints %}{ "lat": {{ wp.lat }}, "lon": {{ wp.lon }}, "name": "{{ wp.name }}" },
+        {% for wp in waypoint %}{ "lat": {{ wp.lat }}, "lon": {{ wp.lon }}, "name": "{{ wp.name }}" },
         {% endfor %}];
 
-      var elevations = [{% for s in segment %}{% for point in s.path %}{{ point.ele }},{% endfor %}{% endfor %}];
-      var times = [{% for s in segment %}{% for point in s.path %}"{{ point.time }}",{% endfor %}{% endfor %}];
+      var elevations = [{% for s in segment %}{% for point in s.points %}{{ point.ele }},{% endfor %}{% endfor %}];
+      var times = [{% for s in segment %}{% for point in s.points %}"{{ point.time }}",{% endfor %}{% endfor %}];
 
       var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
