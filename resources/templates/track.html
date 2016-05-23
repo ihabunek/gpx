@@ -14,7 +14,7 @@
 
   <h3>Elevation plot</h3>
 
-  <canvas id="elevation-chart"></canvas>
+  <div id="elevation-chart"></div>
 
   <h3>Totals</h3>
 
@@ -39,46 +39,66 @@
     #track-map {
       height: 600px;
     }
+    #elevation-chart {
+      height: 400px;
+      width: 100%;
+    }
   </style>
 {% endblock head %}
 
 {% block script %}
   <script src="/assets/leaflet/leaflet.js"></script>
-  <script src="/assets/Chart.js/dist/Chart.bundle.js "></script>
+  <script src="/assets/highcharts/highcharts.js"></script>
 
   <script type="text/javascript">
 
+    function zip(arrays) {
+      return arrays[0].map(function(_,i){
+        return arrays.map(function(array){return array[i]})
+      });
+    }
+var chart;
     function elevationChart(targetID, times, elevations) {
       var target = document.getElementById(targetID);
 
-      var options = {
-        hover: {
-          mode: "label"
-        },
-        elements: {
-          point: {
-            radius: 0,
-            hitRadius: 10
-          }
-        },
-      };
+      var dates = times.map(function (time) {
+        return Date.parse(time);
+      })
 
-      var data = {
-        // labels: times.map(function (time) { return moment(time) }),
-        labels: times,
-        datasets: [{
-          label: "Elevation",
-          data: elevations,
-          backgroundColor: "rgba(75,192,192,0.4)",
-            borderColor: "rgba(75,192,192,1)",
+      var data = zip([dates, elevations]);
+
+      chart = new Highcharts.Chart({
+        chart: {
+            renderTo: target,
+            zoomType: 'x'
+        },
+        title: {
+            text: 'Elevation'
+        },
+        subtitle: {
+            text: document.ontouchstart === undefined ?
+                    'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: {
+            title: {
+                text: 'Exchange rate'
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        series: [{
+            type: 'area',
+            name: 'elevation',
+            data: data
         }]
-      };
-
-      return new Chart(target, {
-          type: 'line',
-          data: data,
-          options: options
       });
+
+      console.log(chart);
+
     }
 
 
@@ -138,8 +158,7 @@
       // Add layer control
       L.control.layers(layers).addTo(trackMap);
 
-      var eleChart = elevationChart('elevation-chart', times, elevations);
-
+      elevationChart('elevation-chart', times, elevations);
     });
   </script>
 {% endblock script %}
