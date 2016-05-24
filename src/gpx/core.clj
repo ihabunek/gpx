@@ -62,9 +62,8 @@
           { :lat (apply max lats) :lon (apply max lons) :ele (apply max eles) })
   ))
 
-(defn stats [track]
-  (let [points (:points track)
-        speeds (speeds points) ]
+(defn stats [points]
+  (let [speeds (speeds points)]
     { :total {
         :distance (distance points)
         :duration (t/in-seconds (duration points)) }
@@ -78,7 +77,7 @@
 
 (defn parse-track [source-file]
   (let [track (parse/parse-gpx-file source-file)]
-    (assoc track :stats (stats track))))
+    (assoc track :stats (stats (:points track)))))
 
 ; --- Main ---------------------------------------------------------------------
 

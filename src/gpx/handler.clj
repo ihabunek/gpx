@@ -29,7 +29,8 @@
   (let [track (db/fetch-track slug)]
     (if (nil? track)
       (not-found)
-      (render-file "templates/track.html" track))))
+      (render-file "templates/track.html"
+        (assoc track :stats (core/stats (-> track :segment first :points)))))))
 
 (defn upload [params]
   (let [tempfile (-> params :route :tempfile)
