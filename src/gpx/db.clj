@@ -63,20 +63,19 @@
               :stats (to-json (:stats data))))
 
 (defn transform-segment [data]
-  (-> data
-    (assoc :times (map c/from-sql-time (:times data)))
-    (assoc :points
-      (map #(zipmap [:lat :lon :ele :time] %)
-        (map vector (:lats data) (:lons data) (:elevations data) (:times data))))
-    (dissoc :lats :lons :elevations :times)
-))
+  (let [times (map c/from-sql-time (:times data))]
+    (-> data
+      (assoc :times times)
+      (assoc :points
+        (map #(zipmap [:lat :lon :ele :time] %)
+          (map vector (:lats data) (:lons data) (:elevations data) times)))
+      (dissoc :lats :lons :elevations :times))))
 
 (defn prepare-segment [data]
   (assoc data :lats (to-double-array (:lats data))
               :lons (to-double-array (:lons data))
               :elevations (to-real-array (:elevations data))
               :times (to-ts-array (map #(f/unparse formatter %) (:times data)))))
-
 
 (defn prepare-waypoint [data]
   (assoc data :time (c/to-sql-time (:time data))))
