@@ -58,8 +58,17 @@
      :time (xml1-> metadata :time text parse-datetime)
      :link (xml1-> metadata :link (attr :href)) })
 
+(defn parse-names [gpx]
+  (remove empty?
+    [(xml1-> gpx :name text)
+     (xml1-> gpx :trk :name text)
+     (xml1-> gpx :metadata :name text)]))
+
+(defn parse-name [gpx]
+  (first (parse-names gpx)))
+
 (defn parse-gpx [gpx]
-  { :name (xml1-> gpx :trk :name text)
+  { :name (parse-name gpx)
     :points (map parse-trkpt (trkpt-seq gpx))
     :waypoints (map parse-wpt (xml-> gpx :wpt))
     :metadata (xml-> gpx :metadata parse-metadata) })
