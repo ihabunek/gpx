@@ -27,16 +27,3 @@
       (zip/xml-zip (xml/parse file))
       (throw (Exception. (str "File not found: " path)))
   )))
-
-(defn pairs
-  "Takes a collection and returns a vector of neighbouring pairs.
-   e.g. (1 2 3 4) => [(1 2) (2 3) (3 4)]"
-  [col]
-  (if (empty? (drop 1 col))
-    (throw (Exception. "Collection too short, at least 2 elements required")))
-
-  (loop [result []
-         s col]
-    (if (empty? (drop 2 s))
-      (conj result (take 2 s))
-      (recur (conj result (take 2 s)) (rest s)))))

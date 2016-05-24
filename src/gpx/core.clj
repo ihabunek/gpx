@@ -5,7 +5,7 @@
         [clojure.pprint :refer [pprint]]
         [gpx.geo :as geo]
         [gpx.parse :as parse]
-        [gpx.util :refer [pairs zipxml]]
+        [gpx.util :refer [zipxml]]
   ))
 
 ; --- Helpers ------------------------------------------------------------------
@@ -23,13 +23,13 @@
 ; --- Running ------------------------------------------------------------------
 
 (defn distances [points]
-  (map #(apply geo/dist-haversine %) (pairs points)))
+  (map #(apply geo/dist-haversine %) (partition 2 1 points)))
 
 (defn intervals [points]
-  (map #(apply time-diff %) (pairs points)))
+  (map #(apply time-diff %) (partition 2 1 points)))
 
 (defn elevations [points]
-  (map #(apply elevation-diff %) (pairs points)))
+  (map #(apply elevation-diff %) (partition 2 1 points)))
 
 (defn speeds [points]
   (map (partial * 3.6)
