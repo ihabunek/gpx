@@ -16,17 +16,19 @@
 
   <div id="elevation-chart"></div>
 
-  <h3>Totals</h3>
+  <h3 id="stats">Stats</h3>
+
+  <h4>Totals</h4>
 
   Distance {{ stats.total.distance|double-format:1 }} m<br />
   Duration {{ stats.total.duration|double-format:0 }} s
 
-  <h3>Speeds</h3>
+  <h4>Speeds</h4>
 
   Max: {{ stats.speed.max|double-format:2 }} km/h<br />
   Avg: {{ stats.speed.avg|double-format:2 }} km/h
 
-  <h3>Elevation</h3>
+  <h4>Elevation</h4>
 
   Gain: {{ stats.elevation.gain|double-format:1 }} m<br />
   Loss: {{ stats.elevation.loss|double-format:1 }} m<br />
@@ -37,7 +39,7 @@
   <link rel="stylesheet" href="/assets/leaflet/leaflet.css" />
   <style type="text/css">
     #track-map {
-      height: 600px;
+      height: 400px;
     }
     #elevation-chart {
       height: 400px;
@@ -84,14 +86,13 @@ var chart;
         },
         yAxis: {
             title: {
-                text: 'Exchange rate'
+                text: 'Elevation'
             }
         },
         legend: {
             enabled: false
         },
         series: [{
-            type: 'area',
             name: 'elevation',
             data: data
         }]
