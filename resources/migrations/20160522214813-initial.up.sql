@@ -24,8 +24,8 @@ CREATE TABLE "track" (
 CREATE TABLE "segment" (
     "id" serial PRIMARY KEY,
     "track_id" integer REFERENCES "track",
-    "lats" real[],
-    "lons" real[],
+    "lats" double precision[],
+    "lons" double precision[],
     "elevations" real[],
     "times" timestamptz[]
 );
@@ -36,8 +36,8 @@ CREATE TABLE "waypoint" (
     "id" serial PRIMARY KEY,
     "track_id" integer REFERENCES "track",
     "name" text,
-    "lat" real,
-    "lon" real,
+    "lat" double precision,
+    "lon" double precision,
     "elevation" real,
     "time" timestamptz
 );

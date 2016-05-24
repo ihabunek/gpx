@@ -5,9 +5,8 @@
     [clojure.data.zip :refer [rightmost?]]
     [clojure.data.zip.xml :refer [xml-> xml1-> attr text]]
     [clojure.zip :as zip]
-    [gpx.util :as util]
-  )
-  (:import java.lang.Float))
+    [gpx.util :refer [zipxml]]
+  ))
 
 (def multi-parser
   (f/formatter
@@ -21,6 +20,8 @@
       (f/parse multi-parser string)
       (catch Exception ex
         (throw (Exception. (str "Failed parsing datetime string: \"" string "\"") ex))))))
+
+(def parse-double #(Double/parseDouble %))
 
 (defn trkpt-seq-inner [point]
   (lazy-seq
@@ -37,18 +38,18 @@
      (xml1-> zgpx :trk :trkseg :trkpt))) ; the first <trkpt> node
 
 (defn parse-wpt [wpt]
-  { :lat (read-string (attr wpt :lat))
-    :lon (read-string (attr wpt :lon))
-    :ele (xml1-> wpt :ele text read-string)
+  { :lat (parse-double (attr wpt :lat))
+    :lon (parse-double (attr wpt :lon))
+    :ele (xml1-> wpt :ele text parse-double)
     :time (xml1-> wpt :time text parse-datetime)
     :name (xml1-> wpt :name text)
     :sym (xml1-> wpt :sym text)
     :type (xml1-> wpt :type text) })
 
 (defn parse-trkpt [trkpt]
-  { :lat (read-string (attr trkpt :lat))
-    :lon (read-string (attr trkpt :lon))
-    :ele (Float/valueOf (xml1-> trkpt :ele text))
+  { :lat (parse-double (attr trkpt :lat))
+    :lon (parse-double (attr trkpt :lon))
+    :ele (xml1-> trkpt :ele text parse-double)
     :time (xml1-> trkpt :time text parse-datetime) })
 
 (defn parse-metadata [metadata]
@@ -67,4 +68,4 @@
   "Returns track information from a zipped gpx file"
   [file-path]
   (parse-gpx
-    (util/zipxml file-path)))
+    (zipxml file-path)))

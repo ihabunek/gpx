@@ -27,6 +27,9 @@
 (defn to-real-array [data]
   (pg-array "float4" data))
 
+(defn to-double-array [data]
+  (pg-array "float8" data))
+
 (defn to-ts-array [data]
   (pg-array "timestamptz" data))
 
@@ -69,8 +72,8 @@
 ))
 
 (defn prepare-segment [data]
-  (assoc data :lats (to-real-array (:lats data))
-              :lons (to-real-array (:lons data))
+  (assoc data :lats (to-double-array (:lats data))
+              :lons (to-double-array (:lons data))
               :elevations (to-real-array (:elevations data))
               :times (to-ts-array (map #(f/unparse formatter %) (:times data)))))
 
