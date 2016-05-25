@@ -32,8 +32,7 @@
   (map #(apply elevation-diff %) (partition 2 1 points)))
 
 (defn speeds [points]
-  (map (partial * 3.6)
-    (map / (distances points) (intervals points))))
+  (map / (distances points) (intervals points)))
 
 ; --- Totals -------------------------------------------------------------------
 

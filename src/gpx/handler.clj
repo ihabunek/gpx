@@ -11,10 +11,17 @@
       [ring.middleware.webjars :refer [wrap-webjars]]
       [ring.util.response :refer [redirect]]
       [selmer.parser :refer [render-file]]
+      [selmer.filters :as filters]
   ))
 
 ; Disable template cache for development
 (selmer.parser/cache-off!)
+
+; --- Filters ------------------------------------------------------------------
+
+(filters/add-filter! :distance util/format-distance)
+(filters/add-filter! :duration util/format-duration)
+(filters/add-filter! :speed util/format-speed)
 
 ; --- Routes -------------------------------------------------------------------
 

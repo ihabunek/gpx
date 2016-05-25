@@ -20,19 +20,19 @@
 
   <h4>Totals</h4>
 
-  Distance {{ stats.total.distance|double-format:1 }} m<br />
-  Duration {{ stats.total.duration|double-format:0 }} s
+  Distance: {{ stats.total.distance|distance }}<br />
+  Duration: {{ stats.total.duration|duration }}
 
   <h4>Speeds</h4>
 
-  Max: {{ stats.speed.max|double-format:2 }} km/h<br />
-  Avg: {{ stats.speed.avg|double-format:2 }} km/h
+  Max: {{ stats.speed.max|speed }}<br />
+  Avg: {{ stats.speed.avg|speed }}
 
   <h4>Elevation</h4>
 
-  Gain: {{ stats.elevation.gain|double-format:1 }} m<br />
-  Loss: {{ stats.elevation.loss|double-format:1 }} m<br />
-  Diff: {{ stats.elevation.diff|double-format:1 }} m
+  Gain: {{ stats.elevation.gain|double-format:0 }} m<br />
+  Loss: {{ stats.elevation.loss|double-format:0 }} m<br />
+  Diff: {{ stats.elevation.diff|double-format:0 }} m
 {% endblock content %}
 
 {% block head %}
@@ -97,11 +97,7 @@ var chart;
             data: data
         }]
       });
-
-      console.log(chart);
-
     }
-
 
     document.addEventListener("DOMContentLoaded", function(event) {
       var segments = [{% for s in segment %}
