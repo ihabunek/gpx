@@ -25,6 +25,7 @@
     [selmer "1.0.4"]
     [yogthos/config "0.8"]
   ]
+  :min-lein-version "2.0.0"
   :resource-paths ["resources", "resources/korma-0.5.0-SNAPSHOT.jar"]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler gpx.handler/app}
