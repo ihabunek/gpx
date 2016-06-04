@@ -23,20 +23,6 @@
 
 (def parse-double #(Double/parseDouble %))
 
-(defn trkpt-seq-inner [point]
-  (lazy-seq
-    (if (rightmost? point)
-      (list point)
-      (cons
-        point
-        (trkpt-seq-inner (zip/right point))))))
-
-(defn trkpt-seq
-  "Returns a lazy sequence of <trkpt> nodes from a zipped gpx file"
-  [zgpx]
-   (trkpt-seq-inner
-     (xml1-> zgpx :trk :trkseg :trkpt))) ; the first <trkpt> node
-
 (defn parse-wpt [wpt]
   { :lat (parse-double (attr wpt :lat))
     :lon (parse-double (attr wpt :lon))
@@ -51,6 +37,12 @@
     :lon (parse-double (attr trkpt :lon))
     :ele (xml1-> trkpt :ele text parse-double)
     :time (xml1-> trkpt :time text parse-datetime) })
+
+(defn parse-segment[trkseg]
+  { :points (map parse-trkpt (xml-> trkseg :trkpt)) })
+
+(defn parse-segments[gpx]
+  (map parse-segment (xml-> gpx :trk :trkseg)))
 
 (defn parse-metadata [metadata]
    { :name (xml1-> metadata :name text)
@@ -69,9 +61,9 @@
 
 (defn parse-gpx [gpx]
   { :name (parse-name gpx)
-    :points (map parse-trkpt (trkpt-seq gpx))
+    :segments (parse-segments gpx)
     :waypoints (map parse-wpt (xml-> gpx :wpt))
-    :metadata (xml-> gpx :metadata parse-metadata) })
+    :metadata (xml1-> gpx :metadata parse-metadata) })
 
 (defn parse-gpx-file
   "Returns track information from a zipped gpx file"

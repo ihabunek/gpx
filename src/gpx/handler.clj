@@ -6,6 +6,7 @@
       [compojure.route :as route]
       [gpx.core :as core]
       [gpx.db :as db]
+      [gpx.parse :as parse]
       [gpx.util :as util]
       [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
       [ring.middleware.webjars :refer [wrap-webjars]]
@@ -32,17 +33,21 @@
 (defn index []
   (render-file "templates/index.html" {} ))
 
+(defn prepare-track [track]
+  (assoc track :stats
+    (apply core/combine-stats
+      (map core/stats (:segment track)))))
+
 (defn track [slug]
-  (let [track (db/fetch-track slug)]
+  (let [track (prepare-track (db/fetch-track slug))]
     (if (nil? track)
       (not-found)
-      (render-file "templates/track.html"
-        (assoc track :stats (core/stats (-> track :segment first :points)))))))
+      (render-file "templates/track.html" track) )))
 
 (defn upload [params]
   (let [tempfile (-> params :route :tempfile)
-        track (core/parse-track tempfile)
-        points (:points track)
+        track (parse/parse-gpx-file tempfile)
+        segments (:segments track)
         waypoints (:waypoints track)
 
         created-track
@@ -51,21 +56,22 @@
             (:metadata track)
             (:stats track))]
 
-    (db/create-segment!
-      (:id created-track)
-      (map :lat points)
-      (map :lon points)
-      (map :ele points)
-      (map :time points))
+    (doseq [segment segments :let [points (:points segment)]]
+      (db/create-segment!
+        (:id created-track)
+        (map :lat points)
+        (map :lon points)
+        (map :ele points)
+        (map :time points)))
 
-    (doall (for [wpt waypoints]
+    (doseq [wpt waypoints]
       (db/create-waypoint!
         (:id created-track)
         (:name wpt)
         (:lat wpt)
         (:lon wpt)
         (:ele wpt)
-        (:time wpt))))
+        (:time wpt)))
 
     (redirect (str "/" (:slug created-track)) :see-other) ))
 

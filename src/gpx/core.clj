@@ -10,8 +10,8 @@
 
 ; --- Helpers ------------------------------------------------------------------
 
-(defn average [col]
-  (/ (reduce + col) (count col)))
+(defn avg [& xs]
+  (/ (reduce + xs) (count xs)))
 
 (defn time-diff [p1 p2]
   (t/in-seconds
@@ -61,22 +61,32 @@
           { :lat (apply max lats) :lon (apply max lons) :ele (apply max eles) })
   ))
 
-(defn stats [points]
-  (let [speeds (speeds points)]
+(defn stats [segment]
+  (let [points (:points segment)
+        speeds (speeds points)]
     { :total {
         :distance (distance points)
         :duration (t/in-seconds (duration points)) }
       :speed {
-        :avg (average speeds)
+        :avg (apply avg speeds)
         :max (apply max speeds) }
       :elevation {
         :gain (elevation-gained points)
         :loss (elevation-lost points)
         :diff (elevation-diff (first points) (last points)) }} ))
 
-(defn parse-track [source-file]
-  (let [track (parse/parse-gpx-file source-file)]
-    (assoc track :stats (stats (:points track)))))
+(defn combine-stats [& statss]
+  { :total {
+      :distance (->> statss (map :total) (map :distance) (reduce +))
+      :duration (->> statss (map :total) (map :duration) (reduce +)) }
+    :speed {
+      :avg (->> statss (map :speed) (map :avg) (reduce avg))
+      :max (->> statss (map :speed) (map :max) (reduce max)) }
+    :elevation {
+      :gain (->> statss (map :elevation) (map :gain) (reduce +))
+      :loss (->> statss (map :elevation) (map :loss) (reduce +))
+      :diff (->> statss (map :elevation) (map :diff) (reduce +)) }})
+
 
 ; --- Main ---------------------------------------------------------------------
 

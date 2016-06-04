@@ -53,13 +53,14 @@
   <script src="/assets/highcharts/highcharts.js"></script>
 
   <script type="text/javascript">
+    var chart;
 
     function zip(arrays) {
       return arrays[0].map(function(_,i){
         return arrays.map(function(array){return array[i]})
       });
     }
-var chart;
+
     function elevationChart(targetID, times, elevations) {
       var target = document.getElementById(targetID);
 
@@ -76,10 +77,6 @@ var chart;
         },
         title: {
             text: 'Elevation'
-        },
-        subtitle: {
-            text: document.ontouchstart === undefined ?
-                    'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
         },
         xAxis: {
             type: 'datetime'
@@ -101,7 +98,7 @@ var chart;
 
     document.addEventListener("DOMContentLoaded", function(event) {
       var segments = [{% for s in segment %}
-        [{% for point in s.points %}[{{ point.lat }},{{ point.lon }}],{% endfor %}]
+        [{% for point in s.points %}[{{ point.lat }},{{ point.lon }}],{% endfor %}],
       {% endfor %}];
 
       var waypoints = [
