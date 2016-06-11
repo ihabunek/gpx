@@ -9,4 +9,21 @@
         <input type="file" name="route" />
         <button class="button">Upload</button>
     </form>
+
+    <hr />
+
+    <h3>Recent uploads</h3>
+    <ul>
+        {% for track in recent-tracks %}
+            <li>
+                <a href="/{{ track.slug }}">
+                    {% if track.name %}
+                        {{ track.name }}
+                    {% else %}
+                        {{ track.slug }}
+                    {% endif %}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock content %}

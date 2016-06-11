@@ -136,3 +136,10 @@
     (with waypoint)
     (where { :slug slug } )
     (limit 1))))
+
+(defn fetch-recent-tracks
+  ([] (fetch-recent-tracks 10))
+  ([len] ()
+    (select track
+      (order :id :DESC)
+      (limit len))))

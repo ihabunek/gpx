@@ -31,7 +31,8 @@
     (render-file "templates/404.html" {} )))
 
 (defn index []
-  (render-file "templates/index.html" {} ))
+  (render-file "templates/index.html" {
+    :recent-tracks (db/fetch-recent-tracks) } ))
 
 (defn prepare-track [track]
   (assoc track :stats
