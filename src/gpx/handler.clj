@@ -1,5 +1,7 @@
 (ns gpx.handler
   (:require
+      [clj-time.format :as f]
+      [clojure.data.json :as json]
       [clojure.java.io :as io]
       [clojure.pprint :refer [pprint]]
       [compojure.core :refer :all]
@@ -11,8 +13,8 @@
       [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
       [ring.middleware.webjars :refer [wrap-webjars]]
       [ring.util.response :refer [redirect]]
-      [selmer.parser :refer [render-file]]
       [selmer.filters :as filters]
+      [selmer.parser :refer [render-file]]
   ))
 
 ; Disable template cache for development
@@ -35,27 +37,42 @@
     :recent-tracks (db/fetch-recent-tracks) } ))
 
 (defn prepare-track [track]
-  (assoc track :stats
-    (apply core/combine-stats
-      (map core/stats (:segment track)))))
+  (assoc track :stats (core/track-stats track)))
+
+(defn value-writer
+  "Convert joda datetime objects to strings when encoding JSON."
+  [key value]
+  (if (instance? org.joda.time.DateTime value)
+    (f/unparse (f/formatters :date-time) value)
+    value))
+
+(defn json-encode-track [track]
+  (json/write-str track :value-fn value-writer))
 
 (defn track [slug]
-  (let [track (prepare-track (db/fetch-track slug))]
+  (let [track (db/fetch-track slug)]
     (if (nil? track)
       (not-found)
       (render-file "templates/track.html" track) )))
 
+(defn track-data [slug]
+  (let [track (db/fetch-track-with-data slug)]
+    (if (nil? track)
+      (not-found)
+      (json-encode-track track) )))
+
 (defn upload [params]
   (let [tempfile (-> params :route :tempfile)
         track (parse/parse-gpx-file tempfile)
-        segments (:segments track)
-        waypoints (:waypoints track)
+        stats (core/track-stats track)
+        segments (:segment track)
+        waypoints (:waypoint track)
 
         created-track
           (db/create-track!
             (:name track)
             (:metadata track)
-            (:stats track))]
+            stats)]
 
     (doseq [segment segments :let [points (:points segment)]]
       (db/create-segment!
@@ -79,6 +96,7 @@
 (defroutes app-routes
   (GET "/" [] (index))
   (GET "/:slug{[A-Za-z0-9]{6}}" [slug] (track slug))
+  (GET "/:slug{[A-Za-z0-9]{6}}/data" [slug] (track-data slug))
   (POST "/upload" {params :params} (upload params))
   (not-found))
 

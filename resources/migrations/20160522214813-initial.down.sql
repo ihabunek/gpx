@@ -1,9 +1,9 @@
-DROP EXTENSION citext;
+DROP TABLE IF EXISTS "waypoint";
 --;;
-DROP TABLE "waypoint";
+DROP TABLE IF EXISTS "segment";
 --;;
-DROP TABLE "segment";
+DROP TABLE IF EXISTS "track";
 --;;
-DROP TABLE "track";
+DROP TABLE IF EXISTS "user";
 --;;
-DROP TABLE "user";
+DROP EXTENSION IF EXISTS citext;

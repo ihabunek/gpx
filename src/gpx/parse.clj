@@ -61,8 +61,8 @@
 
 (defn parse-gpx [gpx]
   { :name (parse-name gpx)
-    :segments (parse-segments gpx)
-    :waypoints (map parse-wpt (xml-> gpx :wpt))
+    :segment (parse-segments gpx)
+    :waypoint (map parse-wpt (xml-> gpx :wpt))
     :metadata (xml1-> gpx :metadata parse-metadata) })
 
 (defn parse-gpx-file

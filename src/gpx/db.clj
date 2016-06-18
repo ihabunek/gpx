@@ -80,6 +80,9 @@
 (defn prepare-waypoint [data]
   (assoc data :time (c/to-sql-time (:time data))))
 
+(defn transform-waypoint [data]
+  (assoc data :time (c/from-sql-time (:time data))))
+
 ; --- Entitites ----------------------------------------------------------------
 
 (declare track segment user waypoint)
@@ -100,6 +103,7 @@
   (belongs-to track))
 
 (defentity waypoint
+  (transform transform-waypoint)
   (prepare prepare-waypoint)
   (belongs-to track))
 
@@ -131,6 +135,11 @@
               :time time })))
 
 (defn fetch-track [slug]
+  (first (select track
+    (where { :slug slug } )
+    (limit 1))))
+
+(defn fetch-track-with-data [slug]
   (first (select track
     (with segment)
     (with waypoint)

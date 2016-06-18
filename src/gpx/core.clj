@@ -58,10 +58,9 @@
         eles (map :ele points)]
 
     (list { :lat (apply min lats) :lon (apply min lons) :ele (apply min eles) }
-          { :lat (apply max lats) :lon (apply max lons) :ele (apply max eles) })
-  ))
+          { :lat (apply max lats) :lon (apply max lons) :ele (apply max eles) }) ))
 
-(defn stats [segment]
+(defn segment-stats [segment]
   (let [points (:points segment)
         speeds (speeds points)]
     { :total {
@@ -87,6 +86,9 @@
       :loss (->> statss (map :elevation) (map :loss) (reduce +))
       :diff (->> statss (map :elevation) (map :diff) (reduce +)) }})
 
+(defn track-stats [track]
+  (apply combine-stats
+      (map segment-stats (:segment track))))
 
 ; --- Main ---------------------------------------------------------------------
 
@@ -94,4 +96,4 @@
   [& args]
   (if (empty? args)
     (println "No input file given.")
-    (pprint (:waypoints (parse/parse-gpx (first args))) )))
+    (pprint (:waypoint (parse/parse-gpx (first args))) )))
