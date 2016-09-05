@@ -28,9 +28,8 @@
     [org.webjars/leaflet "0.7.7"]
 
     ; Database
-    [korma "0.5.0-SNAPSHOT"]
+    [korma "0.4.3"]
     [clj-postgresql "0.4.0"]
-    [com.mchange/c3p0 "0.9.5.2"]
     [postgresql "9.3-1102.jdbc41"]
 
     ; Clojurescript
