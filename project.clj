@@ -10,21 +10,21 @@
     [org.clojure/clojure  "1.8.0"]
     [org.clojure/algo.generic "0.1.2"]
     [org.clojure/data.json "0.2.6"]
-    [org.clojure/data.zip "0.1.1"]
+    [org.clojure/data.zip "0.1.2"]
     [org.clojure/tools.logging "0.3.1"]
 
-    [clj-time "0.11.0"]
-    [compojure "1.4.0"]
-    [log4j "1.2.16"]
-    [org.slf4j/slf4j-log4j12 "1.6.2"]
+    [clj-time "0.12.0"]
+    [compojure "1.5.1"]
+    [log4j "1.2.17"]
+    [org.slf4j/slf4j-log4j12 "1.7.21"]
     [ring-webjars "0.1.1"]
-    [ring/ring-defaults "0.1.5"]
-    [selmer "1.0.4"]
+    [ring/ring-defaults "0.2.1"]
+    [selmer "1.0.7"]
     [yogthos/config "0.8"]
 
     ; Webjars
-    [org.webjars/foundation "6.2.0"]
-    [org.webjars/highcharts "4.2.5"]
+    [org.webjars/foundation "6.2.3"]
+    [org.webjars/highcharts "4.2.6"]
     [org.webjars/leaflet "0.7.7"]
 
     ; Database
@@ -34,7 +34,7 @@
 
     ; Clojurescript
     [org.clojure/clojurescript "1.9.36"]
-    [cljs-ajax "0.5.5"]
+    [cljs-ajax "0.5.8"]
   ]
 
   :cljsbuild {
