@@ -8,8 +8,8 @@
 
   (testing "Stats are correctly combined"
     (let [gpx (parse-gpx-file (io/resource "test/multi-segment.gpx"))
-          s1 (-> gpx :segments first stats)
-          s2 (-> gpx :segments second stats)
+          s1 (segment-stats (-> gpx :segment first))
+          s2 (segment-stats (-> gpx :segment second))
           sc (combine-stats s1 s2)]
 
       (is (= (-> sc :total :distance) (+ (-> s1 :total :distance) (-> s2 :total :distance))))
@@ -20,4 +20,5 @@
 
       (is (= (-> sc :elevation :gain) (+ (-> s1 :elevation :gain) (-> s2 :elevation :gain))))
       (is (= (-> sc :elevation :loss) (+ (-> s1 :elevation :loss) (-> s2 :elevation :loss))))
-      (is (= (-> sc :elevation :diff) (+ (-> s1 :elevation :diff) (-> s2 :elevation :diff)))) )))
+      (is (= (-> sc :elevation :diff) (+ (-> s1 :elevation :diff) (-> s2 :elevation :diff))))
+    )))
