@@ -96,4 +96,4 @@
   [& args]
   (if (empty? args)
     (println "No input file given.")
-    (pprint (:waypoint (parse/parse-gpx (first args))) )))
+    (pprint (track-stats (parse/parse-gpx-file (first args))))))
